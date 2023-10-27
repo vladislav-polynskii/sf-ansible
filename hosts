@@ -1,0 +1,9 @@
+[app]
+vm2 ansible_host=192.168.62.130
+vm3 ansible_host=192.168.62.133
+
+[database]
+vm1 ansible_host=localhost postgresql_version=13 postgresql_data_dir=/data
+
+[web]
+vm1 ansible_host=localhost

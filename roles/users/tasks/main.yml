@@ -1,0 +1,25 @@
+- name: Create user
+  user:
+    name: "{{ username }}"
+    state: present
+
+- name: Ensure .ssh directory exists.
+  file: 
+    dest: "/home/{{ username }}/.ssh"
+    mode: 0700 
+    owner: "{{ username }}"
+    state: directory
+    
+- name: Set authorized key taken from file
+  authorized_key:
+    user: "{{ username }}"
+    state: present
+    key: "{{ lookup('file', '/etc/ansible/files/id_rsa.pub') }}"
+
+- name: Validate the sudoers file before saving
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: "^{{ username }} ALL"
+    line: "{{ username }} ALL=(ALL) NOPASSWD: ALL"
+    validate: /usr/sbin/visudo -cf %s

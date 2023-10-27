@@ -1,0 +1,57 @@
+---
+- name: Add postgesql gpg apt Key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  become: true
+
+- name: Add postgesql Repository
+  apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt jammy-pgdg main
+    state: present
+  become: true
+    
+- name: Install postgresql packages
+  apt:
+    name:
+      - "postgresql-{{ postgresql_version }}"
+      - libpq-dev
+      - python3-psycopg2
+    state: present
+    update_cache: true
+  become: true
+
+
+- name: Check if postgesql is initialized
+  stat:
+    path: "{{ postgresql_default_data_dir }}/pg_hba.conf"
+  register: postgres_data
+
+- name: Empty default data dir
+  file:
+    path: "{{ postgresql_default_data_dir }}"
+    state: absent
+  when: not postgres_data.stat.exists
+  become: true
+
+- name: Ensure postgresql directory exists
+  file: 
+    dest: "{{ postgresql_data_dir }}"
+    mode: 0700 
+    owner: postgres
+    group: postgres
+    state: directory
+    
+
+- name: Initialize postgesql
+  shell: "{{ postgresql_bin_path }}/initdb -D {{ postgresql_data_dir }}/main"
+  become: true
+  become_user: postgres
+  when: not postgres_data.stat.exists
+  notify: restart postgresql
+
+- name: Start and enable service
+  service:
+    name: postgresql
+    state: started
+    enabled: true

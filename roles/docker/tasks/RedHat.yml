@@ -1,0 +1,24 @@
+---
+- name: Install required system packages
+  yum:
+    pkg:
+      - yum-utils
+      - device-mapper-persistent-data
+      - lvm2
+    state: latest
+
+- name: Add Docker Repository
+  get_url:
+    url: https://download.docker.com/linux/centos/docker-ce.repo
+    dest: /etc/yum.repos.d/docker-ce.repo
+
+- name: Install docker-ce
+  yum:
+    name: docker-ce
+    state: latest
+
+- name: Make sure that docker was started and enabled
+  service:
+    name: docker
+    state: started
+    enabled: yes

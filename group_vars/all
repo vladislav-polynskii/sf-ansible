@@ -1,0 +1,3 @@
+username: ansible
+postgresql_version: 13
+postgresql_data_dir: /data

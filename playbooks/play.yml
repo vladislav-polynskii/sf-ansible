@@ -1,0 +1,12 @@
+---
+- hosts: database
+  gather_facts: true
+  become: true
+  roles:
+    - postgresql
+
+- hosts: app
+  gather_facts: true
+  become: true
+  roles:
+    - docker
